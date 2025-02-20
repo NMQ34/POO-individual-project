@@ -1,8 +1,9 @@
 class User:
 
-    def __init__(self, nom, prenom, age, genre, classe, formation):
+    def __init__(self, nom, prenom, IDe, age, genre, classe, formation):
         self.nom = nom
         self.prenom = prenom
+        self.IDe = IDe
         self.age = age
         self.genre = genre
         self.classe = classe
@@ -12,8 +13,10 @@ class User:
 
 class Matiere:
 
-    def __init__(self, nom):
+    def __init__(self, nom, IDc, credit):
         self.nom = nom
+        self.IDc = IDc
+        self.credit = credit
         self.notes = []  
 
     def ajouter_note(self, note):
