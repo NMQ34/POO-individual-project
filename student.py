@@ -55,13 +55,25 @@ class Student(Person):
         total_notes = [note for notes in self.grades.values() for note in notes]
         return sum(total_notes) / len(total_notes)
 
+    def calculateCredits(self, courses, passing_grade=10):
+        total_credits = 0
+        for course in courses:
+            if course.courseCode in self.grades:
+                moyenne_matiere = sum(self.grades[course.courseCode]) / len(self.grades[course.courseCode])
+                if moyenne_matiere >= passing_grade:
+                    total_credits += moyenne_matiere * course.creditHours
+        return total_credits
+
+    def hasPassed(self, courses, threshold=200):
+        return self.calculateCredits(courses) >= threshold
+
     def afficher_informations(self, courses=None):
         if courses is None:
             courses = []
 
         print(f"{self.nom} {self.prenom}, {self.age} ans, {self.genre}")
         print(f"Classe : {self.classe}, Formation : {self.formation}")
-        print(f"ID : {self._studentID}\n")  
+        print(f"ID : {self._studentID}\n")
 
         moyenne_generale = self.getAverageGrade()
         print(f"Moyenne générale : {moyenne_generale if moyenne_generale != 'N/A' else 'Pas encore de notes'}\n")
@@ -79,6 +91,10 @@ class Student(Person):
                 for note in notes:
                     print(f"    Note : {note}")
                 print()
+
+        total_credits = self.calculateCredits(courses)
+        print(f"Total des crédits obtenus : {total_credits}")
+        print(f"L'étudiant {'passe son année' if self.hasPassed(courses) else 'ne passe pas son année'}\n")
 
 
 class Course:
@@ -114,7 +130,7 @@ etudiant2 = Student("Deschler", "Théo", 19, "M", "Bachelor 1", "Cybersécurité
 etudiant3 = Student("Dupont", "Léna", 87, "F", "Master 2", "AI")
 ancien_etudiant1 = GraduateStudent("Martin", "Dubois", 26, "Master en Informatique")
 
-maths = Course("Mathématiques", 5)
+maths = Course("Mathématiques", 9)
 informatique = Course("Informatique", 4)
 techno = Course("Technologie", 3)
 philo = Course("Philosophie", 2)
@@ -142,6 +158,7 @@ etudiant1.addGrade(techno.courseCode, 1)
 etudiant1.addGrade(techno.courseCode, 8.5)
 etudiant2.addGrade(informatique.courseCode, 20)
 etudiant2.addGrade(philo.courseCode, 0)
+etudiant1.addGrade(philo.courseCode, 8.5)
 
 etudiant1.afficher_informations([maths, informatique, techno, philo])
 etudiant2.afficher_informations([maths, informatique, techno, philo])
