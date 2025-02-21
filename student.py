@@ -14,6 +14,22 @@ class Person(ABC):
         pass
 
 
+class GraduateStudent(Person):
+    def __init__(self, nom, prenom, age, diplome):
+        super().__init__(nom, prenom, age)
+        self._graduateID = self.generer_ID()
+        self.diplome = diplome
+
+    @staticmethod
+    def generer_ID():
+        return ''.join(random.choices(string.ascii_uppercase + string.digits, k=23))
+
+    def afficher_informations(self):
+        print(f"{self.nom} {self.prenom}, {self.age} ans")
+        print(f"ID : {self._graduateID}")
+        print(f"Diplôme obtenu : {self.diplome}")
+
+
 class Student(Person):
     def __init__(self, nom, prenom, age, genre, classe, formation):
         super().__init__(nom, prenom, age)
@@ -93,17 +109,10 @@ class Enrollment:
         self.course.enrollStudent(self.student)
 
 
-
-
-
-
-
-
-
 etudiant1 = Student("Collatuzo", "Loic", 20, "M", "Bachelor 1", "Cybersécurité")
 etudiant2 = Student("Deschler", "Théo", 19, "M", "Bachelor 1", "Cybersécurité")
 etudiant3 = Student("Dupont", "Léna", 87, "F", "Master 2", "AI")
-
+ancien_etudiant1 = GraduateStudent("Martin", "Dubois", 26, "Master en Informatique")
 
 maths = Course("Mathématiques", 5)
 informatique = Course("Informatique", 4)
@@ -125,7 +134,7 @@ inscription6.register()
 inscription7 = Enrollment(etudiant2, philo)
 inscription7.register()
 
-etudiant1.addGrade(maths.courseCode, 15)
+etudiant1.addGrade(maths.courseCode, 18)
 etudiant1.addGrade(maths.courseCode, 18)
 etudiant2.addGrade(maths.courseCode, 12)
 etudiant1.addGrade(informatique.courseCode, 18)
@@ -137,3 +146,4 @@ etudiant2.addGrade(philo.courseCode, 0)
 etudiant1.afficher_informations([maths, informatique, techno, philo])
 etudiant2.afficher_informations([maths, informatique, techno, philo])
 etudiant3.afficher_informations([maths, informatique, techno, philo])
+ancien_etudiant1.afficher_informations()
