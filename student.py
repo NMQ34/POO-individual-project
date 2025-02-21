@@ -125,7 +125,7 @@ class Enrollment:
         self.course.enrollStudent(self.student)
 
 
-etudiant1 = Student("Collatuzo", "Loic", 20, "M", "Bachelor 1", "Cybersécurité")
+"""etudiant1 = Student("Collatuzo", "Loic", 20, "M", "Bachelor 1", "Cybersécurité")
 etudiant2 = Student("Deschler", "Théo", 19, "M", "Bachelor 1", "Cybersécurité")
 etudiant3 = Student("Dupont", "Léna", 87, "F", "Master 2", "AI")
 ancien_etudiant1 = GraduateStudent("Martin", "Dubois", 26, "Master en Informatique")
@@ -163,4 +163,4 @@ etudiant1.addGrade(philo.courseCode, 8.5)
 etudiant1.afficher_informations([maths, informatique, techno, philo])
 etudiant2.afficher_informations([maths, informatique, techno, philo])
 etudiant3.afficher_informations([maths, informatique, techno, philo])
-ancien_etudiant1.afficher_informations()
+ancien_etudiant1.afficher_informations()"""
