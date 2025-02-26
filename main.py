@@ -13,8 +13,8 @@ def afficher_menu():
     print("1. Gérer les alumnis")
     print("2. Gérer les étudiants")
     print("3. Gérer les cours")
-    print("4. Gérer les inscriptions")
-    print("5. Gérer les notes")
+    print("4. Inscrire un étudiant")
+    print("5. Ajouter une note")
     print("6. Rechercher par ID")
     print("0. Quitter")
 
@@ -39,9 +39,7 @@ def ajouter_modifier_supprimer_alumni():
         clear_terminal()
         print("\n--- Gérer les Alumnis ---")
         print("1. Ajouter un alumni")
-        print("2. Modifier un alumni")
-        print("3. Supprimer un alumni")
-        print("4. Afficher tous les alumnis")
+        print("2. Afficher tous les alumnis")
         print("0. Retour")
 
         choix = input("Votre choix: ")
@@ -60,20 +58,6 @@ def ajouter_modifier_supprimer_alumni():
             print("✅ Alumni ajouté !" if response.status_code == 201 else f"❌ Erreur : {response.text}")
 
         elif choix == "2":
-            id_alumni = input("ID de l'alumni: ")
-            nom = input("Nom (laisser vide si inchangé) : ")
-            prenom = input("Prénom: ")
-            diplome = input("Diplôme: ")
-            data = {k: v for k, v in {"nom": nom, "prenom": prenom, "diplome": diplome}.items() if v}
-            response = requests.put(f"{API_URL}/graduate_students/{id_alumni}", json=data)
-            print("✅ Alumni modifié !" if response.status_code == 200 else f"❌ Erreur : {response.text}")
-
-        elif choix == "3":
-            id_alumni = input("ID de l'alumni: ")
-            response = requests.delete(f"{API_URL}/graduate_students/{id_alumni}")
-            print("✅ Alumni supprimé !" if response.status_code == 200 else f"❌ Erreur : {response.text}")
-
-        elif choix == "4":
             afficher_alumnis()
 
         elif choix == "0":
@@ -102,9 +86,7 @@ def ajouter_modifier_supprimer_etudiant():
         clear_terminal()
         print("\n--- Gérer les étudiants ---")
         print("1. Ajouter un étudiant")
-        print("2. Modifier un étudiant")
-        print("3. Supprimer un étudiant")
-        print("4. Afficher tous les étudiants")
+        print("2. Afficher tous les étudiants")
         print("0. Retour")
 
         choix = input("Votre choix: ")
@@ -126,45 +108,9 @@ def ajouter_modifier_supprimer_etudiant():
                 print("Erreur lors de l'ajout.")
 
             input("\nAppuyez sur Entrée pour revenir au menu des étudiants...")
-            continue  
+            continue   
 
         elif choix == "2":
-            id_etudiant = input("ID de l'étudiant à modifier: ")
-            response = requests.get(f"{API_URL}/students/{id_etudiant}")
-            if response.status_code != 200:
-                print("Étudiant introuvable.")
-                input("\nAppuyez sur Entrée pour revenir au menu des étudiants...")
-                continue  
-
-            nom = input("Nouveau nom (laisser vide pour ne pas modifier): ")
-            prenom = input("Nouveau prénom: ")
-            classe = input("Nouvelle classe: ")
-            formation = input("Nouvelle formation: ")
-
-            data = {k: v for k, v in {"nom": nom, "prenom": prenom, "classe": classe, "formation": formation}.items() if v}
-            response = requests.put(f"{API_URL}/students/{id_etudiant}", json=data)
-
-            if response.status_code == 200:
-                print("Étudiant modifié avec succès !")
-            else:
-                print("Erreur lors de la modification.")
-
-            input("\nAppuyez sur Entrée pour revenir au menu des étudiants...")
-            continue  
-
-        elif choix == "3":
-            id_etudiant = input("ID de l'étudiant à supprimer: ")
-            response = requests.delete(f"{API_URL}/students/{id_etudiant}")
-
-            if response.status_code == 200:
-                print("Étudiant supprimé avec succès !")
-            else:
-                print("Erreur lors de la suppression.")
-
-            input("\nAppuyez sur Entrée pour revenir au menu des étudiants...")
-            continue  
-
-        elif choix == "4":
             afficher_etudiants()
 
             input("\nAppuyez sur Entrée pour revenir au menu des étudiants...")
@@ -194,9 +140,7 @@ def ajouter_modifier_supprimer_cours():
     clear_terminal()
     print("\n--- Gérer les Cours ---")
     print("1. Ajouter un cours")
-    print("2. Modifier un cours")
-    print("3. Supprimer un cours")
-    print("4. Afficher tous les cours")
+    print("2. Afficher tous les cours")
     print("0. Retour")
 
     choix = input("Votre choix: ")
@@ -212,101 +156,34 @@ def ajouter_modifier_supprimer_cours():
             print("Erreur : Les crédits doivent être un nombre entier.")
 
     elif choix == "2":
-        code = input("Code du cours: ")
-        nom = input("Nom (laisser vide si inchangé) : ")
-        credits = input("Crédits (laisser vide si inchangé) : ")
-        data = {k: v for k, v in {"courseName": nom, "creditHours": credits}.items() if v}
-        response = requests.put(f"{API_URL}/courses/{code}", json=data)
-        print("Cours modifié !" if response.status_code == 200 else f"Erreur : {response.text}")
-
-    elif choix == "3":
-        code = input("Code du cours: ")
-        response = requests.delete(f"{API_URL}/courses/{code}")
-        print("Cours supprimé !" if response.status_code == 200 else f"Erreur : {response.text}")
-
-    elif choix == "4":
         afficher_cours()
 
-### 📌 GESTION DES INSCRIPTIONS
-def inscrire_supprimer_etudiant_cours():
-    while True:
-        clear_terminal()
-        print("\n--- Gérer les inscriptions ---")
-        print("1. Inscrire un étudiant")
-        print("2. Désinscrire un étudiant")
-        print("0. Retour")
+### 📌 INSCRIPTION D'UN ÉTUDIANT
+def inscrire_etudiant():
+    clear_terminal()
+    student_id = input("ID de l'étudiant: ")
+    course_code = input("Code du cours: ")
 
-        choix = input("Votre choix: ")
+    response = requests.post(f"{API_URL}/courses/{course_code}/enroll", json={"student_id": student_id})
+    print("Inscription réussie !" if response.status_code == 200 else f"Erreur : {response.text}")
+    input("\nAppuyez sur Entrée pour revenir au menu des inscriptions...")
 
-        if choix == "1":
-            student_id = input("ID de l'étudiant: ")
-            course_code = input("Code du cours: ")
+### 📌 AJOUTER UNE NOTE
+def ajouter_note():
+    clear_terminal()
+    student_id = input("ID de l'étudiant: ")
+    course_id = input("ID du cours: ")
+    try:
+        note = float(input("Note (sur 20) : "))
+    except ValueError:
+        print("Erreur : La note doit être un nombre.")
+        return
 
-            response = requests.post(f"{API_URL}/courses/{course_code}/enroll", json={"student_id": student_id})
-            print("Inscription réussie !" if response.status_code == 200 else f"Erreur : {response.text}")
-            input("\nAppuyez sur Entrée pour revenir au menu des inscriptions...")
-            continue
+    data = {"student_id": student_id, "course_id": course_id, "note": note}
+    response = requests.post(f"{API_URL}/grades", json=data)
 
-        elif choix == "2":
-            student_id = input("ID de l'étudiant: ")
-            course_code = input("Code du cours: ")
-
-            response = requests.delete(f"{API_URL}/courses/{course_code}/unenroll", json={"student_id": student_id})
-            print("Désinscription réussie !" if response.status_code == 200 else f"Erreur : {response.text}")
-            input("\nAppuyez sur Entrée pour revenir au menu des inscriptions...")
-            continue 
-
-        elif choix == "0":
-            break
-
-### 📌 GESTION DES NOTES
-def gerer_notes():
-    while True:
-        clear_terminal()
-        print("\n--- Gérer les notes ---")
-        print("1. Ajouter une note")
-        print("2. Modifier une note")
-        print("3. Supprimer une note")
-        print("0. Retour")
-
-        choix = input("Votre choix: ")
-
-        if choix == "1": 
-            student_id = input("ID de l'étudiant: ")
-            course_id = input("ID du cours: ")
-            try:
-                note = float(input("Note (sur 20) : "))
-            except ValueError:
-                print("Erreur : La note doit être un nombre.")
-                continue
-
-            data = {"student_id": student_id, "course_id": course_id, "note": note}
-            response = requests.post(f"{API_URL}/grades", json=data)
-
-            print("✅ Note ajoutée !" if response.status_code == 201 else f"❌ Erreur : {response.text}")
-
-        elif choix == "2":
-            grade_id = input("ID de la note à modifier: ")
-            try:
-                nouvelle_note = float(input("Nouvelle note (sur 20) : "))
-            except ValueError:
-                print("Erreur : La note doit être un nombre.")
-                continue
-
-            data = {"note": nouvelle_note}
-            response = requests.put(f"{API_URL}/grades/{grade_id}", json=data)
-
-            print("✅ Note modifiée !" if response.status_code == 200 else f"❌ Erreur : {response.text}")
-
-        elif choix == "3":
-            grade_id = input("ID de la note à supprimer: ")
-            response = requests.delete(f"{API_URL}/grades/{grade_id}")
-            print("✅ Note supprimée !" if response.status_code == 200 else f"❌ Erreur : {response.text}")
-
-        elif choix == "0":
-            break
-
-        input("\nAppuyez sur Entrée pour continuer...")
+    print("✅ Note ajoutée !" if response.status_code == 201 else f"❌ Erreur : {response.text}")
+    input("\nAppuyez sur Entrée pour revenir au menu des notes...")
 
 ### 📌 RECHERCHE PAR ID
 def rechercher_par_id():
@@ -379,9 +256,9 @@ while True:
     elif choix == "3":
         ajouter_modifier_supprimer_cours()
     elif choix == "4":
-        inscrire_supprimer_etudiant_cours()
+        inscrire_etudiant()
     elif choix == "5":
-        gerer_notes() 
+        ajouter_note() 
     elif choix == "6":
         rechercher_par_id()
     elif choix == "0":
