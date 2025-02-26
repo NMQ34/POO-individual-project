@@ -25,7 +25,6 @@ def save_data(data):
 db_data = load_data()
 students = db_data.get("students", [])
 courses = db_data.get("courses", [])
-students = load_data().get("students", []) 
 
 @app.route('/students', methods=['POST'])
 def add_student():
@@ -54,7 +53,6 @@ def add_student():
     }
 
     db_data["students"].append(new_student)
-
     save_data(db_data)
 
     return jsonify(new_student), 201
@@ -71,8 +69,22 @@ def get_all_students():
 
 @app.route('/students/<string:id>', methods=['GET'])
 def get_student(id):
-    student = next((s for s in students if s._studentID == id), None)
-    if student:
+    db_data = load_data()
+
+    student_data = next((s for s in db_data["students"] if s['id'] == id), None)
+
+    if student_data:
+        student = Student(
+            nom=student_data['nom'],
+            prenom=student_data['prenom'],
+            age=student_data['age'],
+            genre=student_data['genre'],
+            classe=student_data['classe'],
+            formation=student_data['formation']
+        )
+
+        student.grades = student_data['grades']
+
         return jsonify({
             'id': student._studentID,
             'nom': student.nom,
@@ -82,12 +94,16 @@ def get_student(id):
             'classe': student.classe,
             'formation': student.formation,
             'grades': student.grades
-        })
-    return jsonify({'error': 'Student not found'}), 404
+        }), 200
+    else:
+        return jsonify({'error': 'Student not found'}), 404
 
 @app.route('/graduate_students', methods=['POST'])
 def add_graduate_student():
     data = request.get_json()
+
+    if not all(field in data for field in ['nom', 'prenom', 'age', 'diplome']):
+        return jsonify({'error': 'Missing required fields'}), 400
 
     graduate_student = GraduateStudent(
         nom=data['nom'],
@@ -96,15 +112,53 @@ def add_graduate_student():
         diplome=data['diplome']
     )
 
-    students.append(graduate_student)
-
-    return jsonify({
+    db_data = load_data()
+    new_graduate = {
         'id': graduate_student._graduateID,
         'nom': graduate_student.nom,
         'prenom': graduate_student.prenom,
         'age': graduate_student.age,
         'diplome': graduate_student.diplome
-    }), 201
+    }
+
+    db_data["graduate_students"].append(new_graduate)
+    save_data(db_data)
+
+    return jsonify(new_graduate), 201
+
+@app.route('/graduate_students', methods=['GET'])
+def get_all_graduate_students():
+    db_data = load_data()
+    graduate_students = db_data.get("graduate_students", [])
+
+    if not graduate_students:
+        return jsonify({'error': 'No graduate students found'}), 404
+
+    return jsonify(graduate_students), 200
+
+@app.route('/graduate_students/<string:id>', methods=['GET'])
+def get_graduate_student(id):
+    db_data = load_data()
+
+    graduate_student_data = next((s for s in db_data["graduate_students"] if s['id'] == id), None)
+
+    if graduate_student_data:
+        graduate_student = GraduateStudent(
+            nom=graduate_student_data['nom'],
+            prenom=graduate_student_data['prenom'],
+            age=graduate_student_data['age'],
+            diplome=graduate_student_data['diplome']
+        )
+
+        return jsonify({
+            'id': graduate_student._graduateID,
+            'nom': graduate_student.nom,
+            'prenom': graduate_student.prenom,
+            'age': graduate_student.age,
+            'diplome': graduate_student.diplome
+        }), 200
+    else:
+        return jsonify({'error': 'Graduate student not found'}), 404
 
 @app.route('/courses', methods=['POST'])
 def add_course():
@@ -121,7 +175,7 @@ def add_course():
         'courseName': course.courseName,
         'creditHours': course.creditHours
     }
-    
+
     db_data["courses"].append(new_course)
     save_data(db_data)
 
@@ -149,14 +203,34 @@ def get_course(course_code):
 def enroll_student():
     data = request.get_json()
     student_id = data['student_id']
-    course_id = data['course_id']
+    course_code = data['course_code']
 
-    student = next((s for s in students if s._studentID == student_id), None)
-    course = next((c for c in courses if isinstance(c, Course) and c.courseCode == course_id), None)
+    db_data = load_data()
+
+    student = next((s for s in db_data["students"] if s['id'] == student_id), None)
+    course = next((c for c in db_data["courses"] if c['courseCode'] == course_code), None)
 
     if student and course:
-        course.enrollStudent(student)
+        existing_enrollment = next(
+            (e for e in db_data.get("enrollments", []) if e['student_id'] == student_id and e['course_code'] == course_code), 
+            None
+        )
+        if existing_enrollment:
+            return jsonify({'error': 'Student is already enrolled in this course'}), 400
+        
+        student_obj = Student(**student)
+        course_obj = Course(course['courseName'], course['creditHours'])
+        course_obj.enrollStudent(student_obj)
+
+        enrollment = Enrollment(student_obj, course_obj)
+        db_data["enrollments"].append({
+            'student_id': student_obj._studentID,
+            'course_code': course_obj.courseCode
+        })
+        save_data(db_data)
+
         return jsonify({"message": "Student enrolled successfully!"}), 201
+
     return jsonify({"error": "Student or Course not found"}), 404
 
 @app.route('/students/<string:id>/grades', methods=['POST'])
@@ -165,38 +239,58 @@ def add_grade(id):
     course_code = data['courseCode']
     grade = data['grade']
 
-    student = next((s for s in students if s._studentID == id), None)
+    if grade < 0 or grade > 20:
+        return jsonify({'error': 'Grade must be between 0 and 20'}), 400
+
+    db_data = load_data()
+    student = next((s for s in db_data["students"] if s['id'] == id), None)
+
     if not student:
         return jsonify({'error': 'Student not found'}), 404
 
-    student.addGrade(course_code, grade)
+    student_obj = Student(**student)
+    student_obj.addGrade(course_code, grade)
+
+    for s in db_data["students"]:
+        if s['id'] == id:
+            s['grades'] = student_obj.grades
+    save_data(db_data)
 
     return jsonify({"message": "Grade added successfully!"}), 200
 
 @app.route('/students/<string:id>/average', methods=['GET'])
 def get_student_average(id):
-    student = next((s for s in students if s._studentID == id), None)
+    db_data = load_data()
+    student = next((s for s in db_data["students"] if s['id'] == id), None)
+
     if not student:
         return jsonify({'error': 'Student not found'}), 404
 
+    student_obj = Student(**student)
+    average = student_obj.getAverageGrade()
+
     return jsonify({
-        'id': student._studentID,
-        'nom': student.nom,
-        'prenom': student.prenom,
-        'average': student.getAverageGrade()
+        'id': student_obj._studentID,
+        'nom': student_obj.nom,
+        'prenom': student_obj.prenom,
+        'average': average
     }), 200
 
 @app.route('/students/<string:id>/pass', methods=['GET'])
 def check_student_pass(id):
-    student = next((s for s in students if s._studentID == id), None)
+    db_data = load_data()
+    student = next((s for s in db_data["students"] if s['id'] == id), None)
+
     if not student:
         return jsonify({'error': 'Student not found'}), 404
 
-    result = student.hasPassed(courses)
+    student_obj = Student(**student)
+    result = student_obj.hasPassed(db_data["courses"])
+
     return jsonify({
-        'id': student._studentID,
-        'nom': student.nom,
-        'prenom': student.prenom,
+        'id': student_obj._studentID,
+        'nom': student_obj.nom,
+        'prenom': student_obj.prenom,
         'status': "Passed" if result else "Failed"
     }), 200
 

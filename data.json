@@ -1,7 +1,7 @@
 {
     "students": [
         {
-            "id": "JKI8EPLNNNMYQ472AEFCLHX",
+            "id": "9KW3LBKA9XCD3P0NSC1Y6UA",
             "nom": "a",
             "prenom": "a",
             "age": 1,
@@ -11,6 +11,20 @@
             "grades": {}
         }
     ],
-    "graduate_students": [],
-    "courses": []
+    "graduate_students": [
+        {
+            "id": "6ZRKH7281UXIVII0O4KQO4C",
+            "nom": "a",
+            "prenom": "a",
+            "age": 1,
+            "diplome": "a"
+        }
+    ],
+    "courses": [
+        {
+            "courseCode": "EDG0Q0",
+            "courseName": "a",
+            "creditHours": 1
+        }
+    ]
 }

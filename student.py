@@ -123,3 +123,14 @@ class Enrollment:
 
     def register(self):
         self.course.enrollStudent(self.student)
+
+class Note:
+    def __init__(self, courseCode, grade):
+        self.id = self.generer_ID()
+        self.courseCode = courseCode
+        self.grade = grade
+
+    @staticmethod
+    def generer_ID():
+        """Génère un ID unique de 40 caractères pour chaque note"""
+        return ''.join(random.choices(string.ascii_uppercase + string.digits, k=40))
