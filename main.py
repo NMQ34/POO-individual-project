@@ -164,25 +164,33 @@ def inscrire_etudiant():
     student_id = input("ID de l'étudiant: ")
     course_code = input("Code du cours: ")
 
-    response = requests.post(f"{API_URL}/courses/{course_code}/enroll", json={"student_id": student_id})
-    print("Inscription réussie !" if response.status_code == 200 else f"Erreur : {response.text}")
+    response = requests.post(f"{API_URL}/enrollments", json={"student_id": student_id, "course_code": course_code})
+    
+    if response.status_code == 201:
+        print("Inscription réussie !")
+    else:
+        print(f"Erreur : {response.text}")
     input("\nAppuyez sur Entrée pour revenir au menu des inscriptions...")
 
-### 📌 AJOUTER UNE NOTE
+### 📌 AJOUTER UNE N0TE
 def ajouter_note():
     clear_terminal()
     student_id = input("ID de l'étudiant: ")
-    course_id = input("ID du cours: ")
+    course_code = input("Code du cours: ")
     try:
         note = float(input("Note (sur 20) : "))
     except ValueError:
         print("Erreur : La note doit être un nombre.")
         return
 
-    data = {"student_id": student_id, "course_id": course_id, "note": note}
-    response = requests.post(f"{API_URL}/grades", json=data)
+    data = {"courseCode": course_code, "grade": note}
 
-    print("✅ Note ajoutée !" if response.status_code == 201 else f"❌ Erreur : {response.text}")
+    response = requests.post(f"{API_URL}/students/{student_id}/grades", json=data)
+
+    if response.status_code == 200:
+        print("✅ Note ajoutée !")
+    else:
+        print(f"❌ Erreur : {response.text}")
     input("\nAppuyez sur Entrée pour revenir au menu des notes...")
 
 ### 📌 RECHERCHE PAR ID
