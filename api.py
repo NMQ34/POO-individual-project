@@ -207,25 +207,30 @@ def enroll_student():
 
     db_data = load_data()
 
-    student = next((s for s in db_data["students"] if s['id'] == student_id), None)
+    student = next((s for s in db_data["students"] if s['_studentID'] == student_id), None)
     course = next((c for c in db_data["courses"] if c['courseCode'] == course_code), None)
 
     if student and course:
         existing_enrollment = next(
-            (e for e in db_data.get("enrollments", []) if e['student_id'] == student_id and e['course_code'] == course_code), 
+            (e for e in db_data.get("enrollments", []) if e['student_id'] == student_id and e['course_code'] == course_code),
             None
         )
         if existing_enrollment:
             return jsonify({'error': 'Student is already enrolled in this course'}), 400
-        
-        student_obj = Student(**student)
+
+        student_obj = Student(
+            nom=student['nom'], prenom=student['prenom'], age=student['age'],
+            genre=student['genre'], classe=student['classe'], formation=student['formation']
+        )
+
         course_obj = Course(course['courseName'], course['creditHours'])
+        course_obj.courseCode = course_code  
+
         course_obj.enrollStudent(student_obj)
 
-        enrollment = Enrollment(student_obj, course_obj)
         db_data["enrollments"].append({
-            'student_id': student_obj._studentID,
-            'course_code': course_obj.courseCode
+            'student_id': student_id,  
+            'course_code': course_code
         })
         save_data(db_data)
 
