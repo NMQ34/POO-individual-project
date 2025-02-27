@@ -10,13 +10,13 @@ DATA_FILE = "data.json"
 
 def load_data():
     if not os.path.exists(DATA_FILE):
-        save_data({"students": [], "graduate_students": [], "courses": []})
+        save_data({"students": [], "graduate_students": [], "courses": [], "enrollments": []}) 
 
     try:
         with open(DATA_FILE, "r") as file:
             return json.load(file)
     except json.JSONDecodeError:
-        return {"students": [], "graduate_students": [], "courses": []}
+        return {"students": [], "graduate_students": [], "courses": [], "enrollments": []} 
 
 def save_data(data):
     with open(DATA_FILE, "w") as file:
@@ -72,31 +72,49 @@ def get_student(id):
     db_data = load_data()
 
     student_data = next((s for s in db_data["students"] if s['id'] == id), None)
-
-    if student_data:
-        student = Student(
-            nom=student_data['nom'],
-            prenom=student_data['prenom'],
-            age=student_data['age'],
-            genre=student_data['genre'],
-            classe=student_data['classe'],
-            formation=student_data['formation']
-        )
-
-        student.grades = student_data['grades']
-
-        return jsonify({
-            'id': student._studentID,
-            'nom': student.nom,
-            'prenom': student.prenom,
-            'age': student.age,
-            'genre': student.genre,
-            'classe': student.classe,
-            'formation': student.formation,
-            'grades': student.grades
-        }), 200
-    else:
+    if not student_data:
         return jsonify({'error': 'Student not found'}), 404
+
+    student_id = student_data['id']
+
+    # Récupération des notes de tous les cours inscrits
+    student_enrollments = [e for e in db_data["enrollments"] if e['student_id'] == student_id]
+
+    course_grades = {}
+    total_notes = []
+    total_credits = 0
+
+    for enrollment in student_enrollments:
+        course_code = enrollment['course_code']
+        grades = enrollment.get('grades', [])
+
+        if grades:
+            moyenne = sum(grades) / len(grades)
+            course = next((c for c in db_data["courses"] if c['courseCode'] == course_code), None)
+
+            if course:
+                credits = course['creditHours']
+                total_credits += moyenne * credits
+                course_grades[course_code] = moyenne
+                total_notes.extend(grades)
+
+    moyenne_generale = sum(total_notes) / len(total_notes) if total_notes else "N/A"
+    
+    passes = total_credits >= 200
+
+    return jsonify({
+        'id': student_data['id'],
+        'nom': student_data['nom'],
+        'prenom': student_data['prenom'],
+        'age': student_data['age'],
+        'genre': student_data['genre'],
+        'classe': student_data['classe'],
+        'formation': student_data['formation'],
+        'grades': moyenne_generale,
+        'moyennes_par_cours': course_grades,
+        'total_credits': total_credits,
+        'passe_annee': passes
+    }), 200
 
 @app.route('/graduate_students', methods=['POST'])
 def add_graduate_student():
@@ -207,7 +225,7 @@ def enroll_student():
 
     db_data = load_data()
 
-    student = next((s for s in db_data["students"] if s['_studentID'] == student_id), None)
+    student = next((s for s in db_data["students"] if s['id'] == student_id), None)
     course = next((c for c in db_data["courses"] if c['courseCode'] == course_code), None)
 
     if student and course:
@@ -218,25 +236,37 @@ def enroll_student():
         if existing_enrollment:
             return jsonify({'error': 'Student is already enrolled in this course'}), 400
 
-        student_obj = Student(
-            nom=student['nom'], prenom=student['prenom'], age=student['age'],
-            genre=student['genre'], classe=student['classe'], formation=student['formation']
-        )
-
-        course_obj = Course(course['courseName'], course['creditHours'])
-        course_obj.courseCode = course_code  
-
-        course_obj.enrollStudent(student_obj)
-
         db_data["enrollments"].append({
             'student_id': student_id,  
-            'course_code': course_code
+            'course_code': course_code,
+            'grades': [] 
         })
-        save_data(db_data)
 
+        save_data(db_data)
         return jsonify({"message": "Student enrolled successfully!"}), 201
 
     return jsonify({"error": "Student or Course not found"}), 404
+
+@app.route('/enrollments/grades', methods=['POST'])
+def add_grade():
+    data = request.get_json()
+    student_id = data['student_id']
+    course_code = data['course_code']
+    grade = data['grade']
+
+    if not (0 <= grade <= 20):
+        return jsonify({"error": "La note doit être entre 0 et 20"}), 400
+
+    db_data = load_data()
+
+    enrollment = next((e for e in db_data["enrollments"] if e['student_id'] == student_id and e['course_code'] == course_code), None)
+
+    if enrollment:
+        enrollment['grades'].append(grade)
+        save_data(db_data)
+        return jsonify({"message": "Note ajoutée avec succès"}), 200
+
+    return jsonify({"error": "Inscription non trouvée"}), 404
 
 if __name__ == '__main__':
     app.run(debug=True)

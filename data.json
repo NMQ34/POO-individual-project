@@ -1,23 +1,90 @@
 {
     "students": [
         {
-            "id": "9KW3LBKA9XCD3P0NSC1Y6UA",
-            "nom": "a",
-            "prenom": "a",
-            "age": 1,
+            "id": "TFNF408VW5S00ZTDL4O95AL",
+            "nom": "Collatuzo",
+            "prenom": "Loic",
+            "age": 30,
             "genre": "M",
-            "classe": "a",
-            "formation": "a",
+            "classe": "Master 2",
+            "formation": "Cybersecurite",
+            "grades": {}
+        },
+        {
+            "id": "84P6MFTI2VFG2M9KXIH6HGJ",
+            "nom": "Deschler",
+            "prenom": "Theo",
+            "age": 18,
+            "genre": "M",
+            "classe": "Bachelor 1",
+            "formation": "Cybersecurite",
             "grades": {}
         }
     ],
     "graduate_students": [
+        {
+            "id": "DVLJ3LJSBIVZ6K6BZKG7QD3",
+            "nom": "Jean",
+            "prenom": "Claude",
+            "age": 34,
+            "diplome": "Mastere Informatique"
+        },
+        {
+            "id": "5792LML2PTCKWH07XKYGJBP",
+            "nom": "Dupont",
+            "prenom": "Alice",
+            "age": 89,
+            "diplome": "Master Math"
+        },
+        {
+            "id": "UOXUFHQM7DOK84UQV9SKVMZ",
+            "nom": "Eude",
+            "prenom": "Jean",
+            "age": 100,
+            "diplome": "Bachelor 3 Cinema"
+        }
     ],
     "courses": [
         {
-            "courseCode": "EDG0Q0",
-            "courseName": "a",
-            "creditHours": 1
+            "courseCode": "Y3I8VG",
+            "courseName": "Math",
+            "creditHours": 34
+        },
+        {
+            "courseCode": "WKW6DO",
+            "courseName": "Info",
+            "creditHours": 3
+        }
+    ],
+    "enrollments": [
+        {
+            "student_id": "TFNF408VW5S00ZTDL4O95AL",
+            "course_code": "Y3I8VG",
+            "grades": [
+                3.0,
+                2.0
+            ]
+        },
+        {
+            "student_id": "TFNF408VW5S00ZTDL4O95AL",
+            "course_code": "WKW6DO",
+            "grades": [
+                9.0
+            ]
+        },
+        {
+            "student_id": "QDWZKQJHXAVHV7P9FG67YU4",
+            "course_code": "Y3I8VG",
+            "grades": [
+                20.0
+            ]
+        },
+        {
+            "student_id": "84P6MFTI2VFG2M9KXIH6HGJ",
+            "course_code": "Y3I8VG",
+            "grades": [
+                20.0
+            ]
         }
     ]
 }

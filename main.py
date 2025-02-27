@@ -183,9 +183,9 @@ def ajouter_note():
         print("Erreur : La note doit être un nombre.")
         return
 
-    data = {"courseCode": course_code, "grade": note}
+    data = {"student_id": student_id, "course_code": course_code, "grade": note}
 
-    response = requests.post(f"{API_URL}/students/{student_id}/grades", json=data)
+    response = requests.post(f"{API_URL}/enrollments/grades", json=data)
 
     if response.status_code == 200:
         print("✅ Note ajoutée !")
@@ -218,7 +218,10 @@ def rechercher_par_id():
                 print(f"Genre : {etudiant['genre']}")
                 print(f"Classe : {etudiant['classe']}")
                 print(f"Formation : {etudiant['formation']}")
-                print(f"Notes : {etudiant['grades']}")
+                print(f"Moyenne générale : {etudiant['grades']}")
+                print(f"Moyennes par cours : {etudiant['moyennes_par_cours']}")
+                print(f"Total des crédits : {etudiant['total_credits']}")
+                print(f"L'étudiant {'✅ passe' if etudiant['passe_annee'] else '❌ ne passe pas'} l'année.")
             else:
                 print("❌ Étudiant introuvable.")
 
