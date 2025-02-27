@@ -123,3 +123,6 @@ class Enrollment:
 
     def register(self):
         self.course.enrollStudent(self.student)
+
+students = {}
+courses = {}

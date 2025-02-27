@@ -1,81 +1,94 @@
-# POO-individual-project
-POO
+📌 README
 
-📚 Gestion des Étudiants et des Notes
+# Student Management System 📚
 
-Ce projet est une application de gestion des étudiants et des notes en Python avec Flask.
-Elle permet d'ajouter des étudiants, de les inscrire à des cours, d'ajouter des notes et de calculer leur moyenne générale ainsi que leur réussite à l'année.
-🚀 Installation et Exécution
-1️⃣ Cloner le projet
+Ce projet est un **système de gestion des étudiants** utilisant **Flask** et la **Programmation Orientée Objet (POO)**.
 
-git clone https://github.com/ton-repo.git
-cd ton-repo
+## 🚀 Fonctionnalités
 
-2️⃣ Installer les dépendances
+- Créer des étudiants et gérer leurs informations.
+- Créer des cours et leur attribuer des crédits.
+- Inscrire les étudiants aux cours.
+- Gérer les notes et les moyennes des étudiants.
+- Exposer une API REST pour interagir avec le système.
 
-Assure-toi d'avoir Python 3 installé, puis installe les dépendances avec :
+## 🛠️ Installation
 
-pip install -r requirements.txt
+1. Cloner le projet :
+   ```sh
+   git clone https://github.com/ton-repo/student-management.git
+   cd student-management
 
-3️⃣ Démarrer l'API Flask
+    Créer un environnement virtuel (optionnel) :
 
-Dans un terminal, exécute :
+python -m venv venv
+source venv/bin/activate  # Sur macOS/Linux
+venv\Scripts\activate  # Sur Windows
 
-python api.py
+Installer les dépendances :
 
-Cela démarre le serveur Flask qui gère les étudiants, les cours et les inscriptions.
-4️⃣ Lancer l'interface utilisateur
+pip install flask
 
-Dans un autre terminal, lance :
+Lancer le serveur Flask :
 
-python main.py
+    python api.py
 
-Cela démarre l'interface en ligne de commande qui permet d'interagir avec l'application.
-🎮 Utilisation
+L’API tournera sur http://127.0.0.1:5000/.
 
-Lorsque python main.py est exécuté, un menu interactif s'affiche.
-Utilise les chiffres pour naviguer et réponds aux demandes affichées.
-📌 Fonctionnalités principales
+## 📡 API Endpoints
 
-1️⃣ Ajouter un étudiant
-2️⃣ Afficher la liste des étudiants
-3️⃣ Rechercher un étudiant par ID (avec moyenne et réussite)
-4️⃣ Ajouter un cours
-5️⃣ Afficher la liste des cours
-6️⃣ Inscrire un étudiant à un cours
-7️⃣ Ajouter une note à un étudiant pour un cours
-8️⃣ Quitter l'application
-🛠 Structure du Projet
+Méthode	Endpoint	Description
+POST	/students	Ajouter un nouvel étudiant
+POST	/courses	Ajouter un nouveau cours
+POST	/enrollments	Inscrire un étudiant à un cours
+GET	/students	Récupérer la liste des étudiants
+GET	/courses	Récupérer la liste des cours
+GET	/students/{id}	Obtenir les détails d’un étudiant
+GET	/courses/{id}	Obtenir les détails d’un cours
 
-📂 /data/ → Stocke les données JSON (étudiants, cours, inscriptions)
-📜 api.py → Gère les requêtes API avec Flask sur l'URL : http://127.0.0.1:5000/<students/courses>/<id>
-📜 main.py → Interface utilisateur CLI
-📜 student.py → Modèle des étudiants
-📜 course.py → Modèle des cours
-📜 enrollment.py → Gestion des inscriptions
-💡 Exemple d'utilisation
+## 🧪 Tester l’API avec curl
 
-    Ajouter un étudiant
-        Saisie du nom, prénom, âge, genre, classe, formation
-        Un ID unique est généré
+Exemples de requêtes :
 
-    Inscrire l'étudiant à un cours
-        Sélection d'un cours dans la liste
-        L'inscription est enregistrée
+1️⃣ Créer un étudiant
 
-    Ajouter une note à un étudiant
-        Saisie de l'ID de l'étudiant et du code du cours
-        Ajout d'une note sur 20
+curl -X POST http://127.0.0.1:5000/students -H "Content-Type: application/json" -d '{
+  "nom": "Doe",
+  "prenom": "John",
+  "age": 20,
+  "genre": "Homme",
+  "classe": "Mathématiques",
+  "formation": "Licence"
+}'
 
-    Voir la moyenne et la réussite
-        Recherche d'un étudiant par ID
-        Affichage de la moyenne générale, moyennes par cours et crédits obtenus
-        Indique si l'étudiant passe ou non son année 🎓
+2️⃣ Créer un cours
 
-✨ Critères de réussite
+curl -X POST http://127.0.0.1:5000/courses -H "Content-Type: application/json" -d '{
+  "courseName": "Algèbre",
+  "creditHours": 4
+}'
 
-🔹 Moyenne par cours = moyenne des notes obtenues
-🔹 Moyenne générale = moyenne de toutes les notes
-🔹 Réussite de l'année = moyenne * crédits ≥ 200
+3️⃣ Inscrire un étudiant à un cours
 
-Bonne utilisation ! 🚀
+(Remplace studentID et courseCode par les valeurs renvoyées par les requêtes précédentes)
+
+curl -X POST http://127.0.0.1:5000/enrollments -H "Content-Type: application/json" -d '{
+  "studentID": "<studentID>",
+  "courseCode": "<courseCode>"
+}'
+
+4️⃣ Lister tous les étudiants
+
+curl -X GET http://127.0.0.1:5000/students
+
+5️⃣ Lister tous les cours
+
+curl -X GET http://127.0.0.1:5000/courses
+
+6️⃣ Obtenir les détails d’un étudiant
+
+curl -X GET http://127.0.0.1:5000/students/<studentID>
+
+7️⃣ Obtenir les détails d’un cours
+
+curl -X GET http://127.0.0.1:5000/courses/<courseCode>
